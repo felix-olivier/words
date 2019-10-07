@@ -13,8 +13,8 @@ stub = {
 }
 
 @app.route('/', methods=['GET'])
-def get_tasks():
-    return stub # jsonify({'words': words})
+def get_stub():
+    return jsonify(stub)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
