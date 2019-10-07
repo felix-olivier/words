@@ -40,7 +40,7 @@ def get_article_text(id):
 Get a predefined list of difficult words
 '''
 def get_difficult_words():
-    file = open('app/data/words.csv', 'r')
+    file = open('data/words.csv', 'r')
     difficult_words = file.read().split(',')
     file.close()
     return difficult_words
