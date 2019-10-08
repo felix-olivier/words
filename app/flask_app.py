@@ -3,7 +3,10 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import json
+import nltk.data
+import pyphen
 from flask_cors import CORS
+
 
 app = Flask(__name__)
 CORS(app)
@@ -40,6 +43,11 @@ with open(definitions_file2, 'r') as csv_file:
             pre_definitions[fields[0]].append(fields[1])
 
             line = csv_file.readline()
+
+
+sentence_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+pyphen.language_fallback('nl_NL_variant1')
+hyphenator = pyphen.Pyphen(lang='nl_NL')
 
 
 #### HELPER FUNCTIONS
@@ -191,6 +199,24 @@ def update_pre_defintions():
     with open(path, 'w+') as outfile:
         json.dump(original_pre_definitions, outfile)
 
+
+def rate_text_difficulty(article_text: str) -> dict:
+    """
+    Bereken de moeilijkheidsgraad van de tekst
+    :param article_text: Volledige tekst van het artikel, als een enkele string
+    :return: object met ratings per evaluatiemethode
+    """
+    sentence_lengths = [len(sentence.split()) for sentence in sentence_tokenizer.tokenize(article_text.strip())]
+    syllable_lengths = [len(hyphenator.inserted(token).split('-')) for token in article_text.split() if len(token) > 0]
+
+    avg_sentence_length = sum(sentence_lengths) / len(sentence_lengths)
+    avg_syllable_length = sum(syllable_lengths) / len(syllable_lengths)
+
+    return {
+        'douma': 207 - .93 * avg_sentence_length - 77 * avg_syllable_length,
+        'brouwer': 195 - 2 * avg_sentence_length - 67 * avg_syllable_length
+    }
+
 #### ENDPOINT ITEMS/ID
 @app.route('/items/<int:id>')
 def get_difficults_words(id):
@@ -214,7 +240,10 @@ def get_difficults_words(id):
     # update pre_definitions file
     update_pre_defintions()
 
-    return jsonify({'words': words_to_explain})
+    return jsonify({
+        'words': words_to_explain,
+        'rating': rate_text_difficulty(article_text)
+    })
 
 #### ENDPOINT STUB
 stub = {
