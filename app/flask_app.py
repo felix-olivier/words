@@ -15,7 +15,7 @@ else:
 
 with open(definitions_file, 'r') as json_file:
     if (os.stat(definitions_file).st_size == 0):
-        pre_definitions = '{}'
+        pre_definitions = {}
     else:
         pre_definitions = json.load(json_file)
 
