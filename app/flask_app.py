@@ -16,9 +16,6 @@ else:
 with open(definitions_file, 'r') as json_file:
     pre_definitions = json.load(json_file)
 
-
-
-
 #### HELPER FUNCTIONS
 '''
 Get the article text by scraping nos.nl
@@ -40,7 +37,7 @@ def get_article_text(id):
 '''
 Get a predefined list of difficult words
 '''
-def get_difficult_words(): # todo: combine with get_difficult_words_alternative
+def get_difficult_words():
     if (local):
         file = open('app/data/words.csv', 'r')
     else:
@@ -59,7 +56,6 @@ def get_definitions(word):
 
     if (word in pre_definitions):
         return pre_definitions[word]
-
 
     url = "https://www.vandale.nl/gratis-woordenboek/nederlands/betekenis/" + str(word)
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -177,11 +173,9 @@ def get_difficults_words(id):
                 print('WARNING: No definition found for ' + word)
 
     # update pre_definitions file
-    update_pre_defintions()
+    # update_pre_defintions()
 
     return jsonify({'words': words_to_explain})
-
-
 
 #### ENDPOINT STUB
 stub = {
