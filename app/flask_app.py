@@ -7,7 +7,7 @@ import json
 app = Flask(__name__)
 
 ### Read files
-local = True # set to false on CHP/Docker
+local = falseTrue # set to false on CHP/Docker
 if (local):
     definitions_file = 'app/data/definitions.json'
     definitions_file2 = 'app/data/definitions.csv'
@@ -20,6 +20,7 @@ with open(definitions_file, 'r') as json_file:
         pre_definitions = {}
     else:
         pre_definitions = json.load(json_file)
+    original_pre_definitions = pre_definitions.copy()
 
 
 with open(definitions_file2, 'r') as csv_file:
@@ -73,11 +74,8 @@ def get_difficult_words(article):
         word = cleanup_word(word)
         if (word in pre_difficult_words):
             difficult_words.append(word)
-            
-    return difficult_words
 
-def update_pre_defintions(word, definitions):
-    pre_definitions[word]
+    return difficult_words
 
 '''
 Retrieve definitions of a word by scraping van dale
@@ -85,7 +83,10 @@ Retrieve definitions of a word by scraping van dale
 def get_definitions(word):
 
     if (word in pre_definitions):
+        print('word in pre')
         return pre_definitions[word]
+    # else:
+    #     return []
 
     url = "https://www.vandale.nl/gratis-woordenboek/nederlands/betekenis/" + str(word)
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -102,6 +103,7 @@ def get_definitions(word):
             definition_to_return += ' ' + definition.get_text()
         to_return.append(definition_to_return)
 
+    original_pre_definitions[word] = to_return
     pre_definitions[word] = to_return
 
     return to_return
@@ -180,7 +182,7 @@ def update_pre_defintions():
     else:
         path = '/data/definitions.json'
     with open(path, 'w+') as outfile:
-        json.dump(pre_definitions, outfile)
+        json.dump(original_pre_definitions, outfile)
 
 #### ENDPOINT ITEMS/ID
 @app.route('/items/<int:id>')
