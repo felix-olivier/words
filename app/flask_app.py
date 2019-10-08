@@ -13,7 +13,7 @@ if (local):
     definitions_file2 = 'app/data/definitions.csv'
 else:
     definitions_file = '/data/definitions.json'
-    definitions_file2 = '/data/definitions.csv'
+    definitions_file2 = 'data/definitions.csv'
 
 with open(definitions_file, 'r') as json_file:
     if (os.stat(definitions_file).st_size == 0):
@@ -139,14 +139,16 @@ Basic word complexity analysis. A word is complex when one of the following is t
     - Not capitalized (todo: exclude start of sentence)
     - word length > 10 characters
     - more than four syllables
-    - word contains x, y, c, ch, ae, ea, q, z and word length > 6 characters
+    - word contains x, y, c, ae, ea, q, z and word length > 6 characters
+    - word startswith ch
 '''
 def get_difficult_words_alternative(article_text):
     ### CONFIG
     max_word_length = 10
     max_syllables = 4
-    danger_letters = ['x', 'y', 'ch', 'ae', 'ea', 'q', 'th', 'ph', 'mn']
+    danger_letters = ['x', 'y', 'ae', 'ea', 'q', 'th', 'ph', 'mn']
     danger_letters_max_length = 6
+    startswith_danger = ['ch']
 
     ### Functionality
     all_words = article_text.split()
