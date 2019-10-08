@@ -119,7 +119,7 @@ def get_difficult_words_alternative(article_text):
     ### CONFIG
     max_word_length = 10
     max_syllables = 4
-    danger_letters = ['x', 'y', 'c', 'ch', 'ae', 'ea', 'q']
+    danger_letters = ['x', 'y', 'ch', 'ae', 'ea', 'q', 'th', 'ph', 'mn']
     danger_letters_max_length = 6
 
     ### Functionality
