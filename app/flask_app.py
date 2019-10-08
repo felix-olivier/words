@@ -7,7 +7,7 @@ import json
 app = Flask(__name__)
 
 ### Read files
-local = True # set to false on CHP/Docker
+local = False # set to false on CHP/Docker
 if (local):
     definitions_file = 'app/data/definitions.json'
 else:
