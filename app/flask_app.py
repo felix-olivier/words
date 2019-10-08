@@ -146,9 +146,9 @@ def get_difficult_words_alternative(article_text):
     ### CONFIG
     max_word_length = 10
     max_syllables = 4
-    danger_letters = ['x', 'y', 'ae', 'ea', 'q', 'th', 'ph', 'mn']
+    danger_letters = ['x', 'y', 'ae', 'ea', 'q', 'th', 'ph', 'mn', 'eau', 'kw', 'rh', 'ph', 'th', 'eon', 'ion', 'yon', 'oir', ]
     danger_letters_max_length = 6
-    startswith_danger = ['ch']
+    danger_starters = ['ch']
 
     ### Functionality
     all_words = article_text.split()
@@ -161,6 +161,8 @@ def get_difficult_words_alternative(article_text):
             continue
         if (word[0].isupper()):
             continue # todo: up for improvement, word should not be skipped when at the start of a sentence
+        if (word.endswith('je')):
+            continue
         if (len(word) >= max_word_length):
             to_return.append(word)
             continue
@@ -172,6 +174,10 @@ def get_difficult_words_alternative(article_text):
                 if (danger_letter in word):
                     to_return.append(word)
                     break
+        for danger_starter in danger_starters:
+            if (word.startswith(danger_starter)):
+                to_return.append(word)
+                break
 
     return set(list(to_return))
 
