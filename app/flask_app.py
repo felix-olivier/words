@@ -15,13 +15,14 @@ if (local):
     definitions_file2 = 'app/data/definitions.csv'
 else:
     definitions_file = '/data/definitions.json'
-    definitions_file2 = '/data/definitions.csv'
+    definitions_file2 = 'data/definitions.csv'
 
 with open(definitions_file, 'r') as json_file:
     if (os.stat(definitions_file).st_size == 0):
         pre_definitions = {}
     else:
         pre_definitions = json.load(json_file)
+    original_pre_definitions = pre_definitions.copy()
 
 
 with open(definitions_file2, 'r') as csv_file:
@@ -67,17 +68,21 @@ def get_article_text(id):
 '''
 Get a predefined list of difficult words
 '''
-def get_difficult_words():
+def get_difficult_words(article):
     if (local):
-        file = open('app/data/words.csv', 'r')
+        file = open('app/data/zeldzame-woorden.csv', 'r')
     else:
-        file = open('data/words.csv', 'r')
-    difficult_words = file.read().split(',')
+        file = open('data/zeldzame-woorden.csv', 'r')
+    pre_difficult_words = file.read().split('\n')
     file.close()
-    return difficult_words
 
-def update_pre_defintions(word, definitions):
-    pre_definitions[word]
+    difficult_words = []
+    for word in article.split():
+        word = cleanup_word(word)
+        if (word in pre_difficult_words):
+            difficult_words.append(word)
+
+    return difficult_words
 
 '''
 Retrieve definitions of a word by scraping van dale
@@ -102,6 +107,7 @@ def get_definitions(word):
             definition_to_return += ' ' + definition.get_text()
         to_return.append(definition_to_return)
 
+    original_pre_definitions[word] = to_return
     pre_definitions[word] = to_return
 
     return to_return
@@ -140,14 +146,16 @@ Basic word complexity analysis. A word is complex when one of the following is t
     - Not capitalized (todo: exclude start of sentence)
     - word length > 10 characters
     - more than four syllables
-    - word contains x, y, c, ch, ae, ea, q, z and word length > 6 characters
+    - word contains x, y, c, ae, ea, q, z and word length > 6 characters
+    - word startswith ch
 '''
 def get_difficult_words_alternative(article_text):
     ### CONFIG
     max_word_length = 10
     max_syllables = 4
-    danger_letters = ['x', 'y', 'ch', 'ae', 'ea', 'q', 'th', 'ph', 'mn']
+    danger_letters = ['x', 'y', 'ae', 'ea', 'q', 'th', 'ph', 'mn', 'eau', 'kw', 'rh', 'ph', 'th', 'eon', 'ion', 'yon', 'oir', ]
     danger_letters_max_length = 6
+    danger_starters = ['ch']
 
     ### Functionality
     all_words = article_text.split()
@@ -160,6 +168,8 @@ def get_difficult_words_alternative(article_text):
             continue
         if (word[0].isupper()):
             continue # todo: up for improvement, word should not be skipped when at the start of a sentence
+        if (word.endswith('je') or word.endswith('jes')):
+            continue
         if (len(word) >= max_word_length):
             to_return.append(word)
             continue
@@ -171,6 +181,10 @@ def get_difficult_words_alternative(article_text):
                 if (danger_letter in word):
                     to_return.append(word)
                     break
+        for danger_starter in danger_starters:
+            if (word.startswith(danger_starter)):
+                to_return.append(word)
+                break
 
     return set(list(to_return))
 
@@ -180,7 +194,7 @@ def update_pre_defintions():
     else:
         path = '/data/definitions.json'
     with open(path, 'w+') as outfile:
-        json.dump(pre_definitions, outfile)
+        json.dump(original_pre_definitions, outfile)
 
 
 def rate_text_difficulty(article_text: str) -> dict:
@@ -206,7 +220,7 @@ def get_difficults_words(id):
     article_text = get_article_text(id)
 
     difficult_words = (get_difficult_words_alternative(article_text)) # this is based upon textual analysis
-    difficult_words.update(get_difficult_words()) # this is based upon a pre-defined list
+    difficult_words.update(get_difficult_words(article_text)) # this is based upon a pre-defined list
 
     words_to_explain = []
     for word in difficult_words:
