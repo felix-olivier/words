@@ -161,7 +161,7 @@ def get_difficult_words_alternative(article_text):
             continue
         if (word[0].isupper()):
             continue # todo: up for improvement, word should not be skipped when at the start of a sentence
-        if (word.endswith('je')):
+        if (word.endswith('je') or word.endswith('jes')):
             continue
         if (len(word) >= max_word_length):
             to_return.append(word)
