@@ -14,7 +14,10 @@ else:
     definitions_file = '/data/definitions.json'
 
 with open(definitions_file, 'r') as json_file:
-    pre_definitions = json.load(json_file)
+    if (os.stat(definitions_file).st_size == 0):
+        pre_definitions = {}
+    else:
+        pre_definitions = json.load(json_file)
 
 #### HELPER FUNCTIONS
 '''
