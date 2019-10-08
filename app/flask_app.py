@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 import requests
 from bs4 import BeautifulSoup
 import os
+import json
 
 app = Flask(__name__)
 
@@ -34,13 +35,12 @@ def get_article_text(id):
     for paragraph in paragraphs:
         article_text += ' ' + paragraph.get_text()
 
-    print(article_text)
     return article_text
 
 '''
 Get a predefined list of difficult words
 '''
-def get_difficult_words():
+def get_difficult_words(): # todo: combine with get_difficult_words_alternative
     local = True
     if (local):
         file = open('app/data/words.csv', 'r')
@@ -50,11 +50,47 @@ def get_difficult_words():
     file.close()
     return difficult_words
 
+# def get_pre_defintions(): #todo
+#     local = True
+#     if (local):
+#         file = open('app/data/defintions.json', 'r')
+#     else:
+#         file = open('data/definitions.json', 'r')
+#
+#
+#     with open(file) as json_file:
+#         data = json.load(json_file)
+#         print(data)
+
+def update_pre_defintions():
+    local = True
+
 '''
-TODO: Fetch the definition(s) of the difficult word
+Retrieve definitions of a word by scraping van dale
 '''
 def get_definitions(word):
-    return ['none yet']
+    # pre_definitions = get_difficult_words() # todo
+
+
+
+
+
+    url = "https://www.vandale.nl/gratis-woordenboek/nederlands/betekenis/" +str(word)
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    bodies = soup.find_all(class_="f0")
+
+    to_return = []
+    for body in bodies:
+        definition_to_return = ''
+        definitions = body.find_all('span')
+        for definition in definitions:
+            definition_to_return += ' ' + definition.get_text()
+        to_return.append(definition_to_return)
+
+    return to_return
 
 '''
 remove all characters other than letters from string
@@ -96,26 +132,27 @@ def get_difficult_words_alternative(article_text):
     ### CONFIG
     max_word_length = 10
     max_syllables = 4
-    danger_letters = ['x', 'y', 'c', 'ch', 'ae', 'ea', 'q', 'z']
+    danger_letters = ['x', 'y', 'c', 'ch', 'ae', 'ea', 'q']
     danger_letters_max_length = 6
 
     ### Functionality
     all_words = article_text.split()
 
     to_return = []
-    for word in all_words: # todo: uniques
-
+    for word in all_words:
         word = cleanup_word(word)
 
         if (len(word) <= 0):
             continue
-        elif (word[0].isupper()):
+        if (word[0].isupper()):
             continue # todo: up for improvement, word should not be skipped when at the start of a sentence
-        elif (len(word) >= max_word_length):
+        if (len(word) >= max_word_length):
             to_return.append(word)
-        elif (syllable_count(word) >= max_syllables):
+            continue
+        if (syllable_count(word) >= max_syllables):
             to_return.append(word)
-        elif (len(word) >= danger_letters_max_length):
+            continue
+        if (len(word) >= danger_letters_max_length):
             for danger_letter in danger_letters:
                 if (danger_letter in word):
                     to_return.append(word)
@@ -128,16 +165,21 @@ def get_difficult_words_alternative(article_text):
 def get_difficults_words(id):
     article_text = get_article_text(id)
 
-    difficult_words = get_difficult_words_alternative(article_text) # this is based upon textual analysis
-    # difficult_words = get_difficult_words() # this is based upon a pre-defined list
+    difficult_words = (get_difficult_words_alternative(article_text)) # this is based upon textual analysis
+    difficult_words.update(get_difficult_words()) # this is based upon a pre-defined list
 
     words_to_explain = []
     for word in difficult_words:
         if (word in article_text):
-            words_to_explain.append({
-                'word': word,
-                'definitions': get_definitions(word)
-            })
+            definitions = get_definitions(word)
+            if len(definitions) > 0:
+                words_to_explain.append({
+                    'word': word,
+                    'definitions': get_definitions(word)
+                })
+            else:
+                print('WARNING: No definition found for ' + word)
+
 
     return jsonify({'words': words_to_explain})
 
