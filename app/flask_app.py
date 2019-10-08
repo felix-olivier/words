@@ -7,7 +7,7 @@ import json
 app = Flask(__name__)
 
 ### Read files
-local = falseTrue # set to false on CHP/Docker
+local = False # set to false on CHP/Docker
 if (local):
     definitions_file = 'app/data/definitions.json'
     definitions_file2 = 'app/data/definitions.csv'
@@ -83,10 +83,7 @@ Retrieve definitions of a word by scraping van dale
 def get_definitions(word):
 
     if (word in pre_definitions):
-        print('word in pre')
         return pre_definitions[word]
-    # else:
-    #     return []
 
     url = "https://www.vandale.nl/gratis-woordenboek/nederlands/betekenis/" + str(word)
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
