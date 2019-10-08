@@ -10,14 +10,34 @@ app = Flask(__name__)
 local = False # set to false on CHP/Docker
 if (local):
     definitions_file = 'app/data/definitions.json'
+    definitions_file2 = 'app/data/definitions.csv'
 else:
     definitions_file = '/data/definitions.json'
+    definitions_file2 = '/data/definitions.csv'
 
 with open(definitions_file, 'r') as json_file:
     if (os.stat(definitions_file).st_size == 0):
         pre_definitions = {}
     else:
         pre_definitions = json.load(json_file)
+
+
+with open(definitions_file2, 'r') as csv_file:
+    if os.stat(definitions_file2).st_size != 0:
+        line = csv_file.readline()
+        while line:
+            if len(line) == 0:
+                continue
+
+            fields = line.split('™')
+
+            if fields[0] not in pre_definitions:
+                pre_definitions[fields[0]] = []
+
+            pre_definitions[fields[0]].append(fields[1])
+
+            line = csv_file.readline()
+
 
 #### HELPER FUNCTIONS
 '''
