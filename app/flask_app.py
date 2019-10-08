@@ -11,7 +11,7 @@ local = False # set to false on CHP/Docker
 if (local):
     definitions_file = 'app/data/definitions.json'
 else:
-    definitions_file = 'data/definitions.json'
+    definitions_file = '/data/definitions.json'
 
 with open(definitions_file, 'r') as json_file:
     pre_definitions = json.load(json_file)
@@ -148,7 +148,7 @@ def update_pre_defintions():
     if (local):
         path = 'app/data/definitions.json'
     else:
-        path = 'data/definitions.json'
+        path = '/data/definitions.json'
     with open(path, 'w') as outfile:
         json.dump(pre_definitions, outfile)
 
