@@ -6,20 +6,20 @@ import json
 
 app = Flask(__name__)
 
-stub = {
-    "words": [{
-        "word": "impeachment",
-        "definitions": ["Amerikaans recht: <br />het in staat van beschuldiging stellen, niet het afzetten, van een overheidsfunctionaris."]
-    }, {
-        "word": "halal",
-        "definitions": ["Halal (Arabisch: حَلاَلْ: rein, toegestaan) is een islamitische term waarmee wordt aangegeven wat voor moslims toegestaan is.", "Halal staat voor alles wat door de Koran als goed en rein kan worden gezien."]
-    }]
-}
+### Read files
+local = True # set to false on CHP/Docker
+if (local):
+    definitions_file = 'app/data/definitions.json'
+else:
+    definitions_file = 'data/definitions.json'
 
-@app.route('/', methods=['GET'])
-def get_stub():
-    return jsonify(stub)
+with open(definitions_file, 'r') as json_file:
+    pre_definitions = json.load(json_file)
 
+
+
+
+#### HELPER FUNCTIONS
 '''
 Get the article text by scraping nos.nl
 '''
@@ -41,7 +41,6 @@ def get_article_text(id):
 Get a predefined list of difficult words
 '''
 def get_difficult_words(): # todo: combine with get_difficult_words_alternative
-    local = False
     if (local):
         file = open('app/data/words.csv', 'r')
     else:
@@ -50,32 +49,19 @@ def get_difficult_words(): # todo: combine with get_difficult_words_alternative
     file.close()
     return difficult_words
 
-# def get_pre_defintions(): #todo
-#     local = True
-#     if (local):
-#         file = open('app/data/defintions.json', 'r')
-#     else:
-#         file = open('data/definitions.json', 'r')
-#
-#
-#     with open(file) as json_file:
-#         data = json.load(json_file)
-#         print(data)
-
-def update_pre_defintions():
-    local = False
+def update_pre_defintions(word, definitions):
+    pre_definitions[word]
 
 '''
 Retrieve definitions of a word by scraping van dale
 '''
 def get_definitions(word):
-    # pre_definitions = get_difficult_words() # todo
+
+    if (word in pre_definitions):
+        return pre_definitions[word]
 
 
-
-
-
-    url = "https://www.vandale.nl/gratis-woordenboek/nederlands/betekenis/" +str(word)
+    url = "https://www.vandale.nl/gratis-woordenboek/nederlands/betekenis/" + str(word)
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
 
     response = requests.get(url, headers=headers)
@@ -89,6 +75,8 @@ def get_definitions(word):
         for definition in definitions:
             definition_to_return += ' ' + definition.get_text()
         to_return.append(definition_to_return)
+
+    pre_definitions[word] = to_return
 
     return to_return
 
@@ -160,7 +148,15 @@ def get_difficult_words_alternative(article_text):
 
     return set(list(to_return))
 
+def update_pre_defintions():
+    if (local):
+        path = 'app/data/definitions.json'
+    else:
+        path = 'data/definitions.json'
+    with open(path, 'w') as outfile:
+        json.dump(pre_definitions, outfile)
 
+#### ENDPOINT ITEMS/ID
 @app.route('/items/<int:id>')
 def get_difficults_words(id):
     article_text = get_article_text(id)
@@ -180,8 +176,29 @@ def get_difficults_words(id):
             else:
                 print('WARNING: No definition found for ' + word)
 
+    # update pre_definitions file
+    update_pre_defintions()
 
     return jsonify({'words': words_to_explain})
 
+
+
+#### ENDPOINT STUB
+stub = {
+    "words": [{
+        "word": "impeachment",
+        "definitions": ["Amerikaans recht: <br />het in staat van beschuldiging stellen, niet het afzetten, van een overheidsfunctionaris."]
+    }, {
+        "word": "halal",
+        "definitions": ["Halal (Arabisch: حَلاَلْ: rein, toegestaan) is een islamitische term waarmee wordt aangegeven wat voor moslims toegestaan is.", "Halal staat voor alles wat door de Koran als goed en rein kan worden gezien."]
+    }]
+}
+
+@app.route('/', methods=['GET'])
+def get_stub():
+    return jsonify(stub)
+
+
+#### MAIN
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
