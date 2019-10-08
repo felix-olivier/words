@@ -3,8 +3,10 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import json
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 ### Read files
 local = False # set to false on CHP/Docker
@@ -146,7 +148,7 @@ def get_difficult_words_alternative(article_text):
     ### CONFIG
     max_word_length = 10
     max_syllables = 4
-    danger_letters = ['x', 'y', 'ae', 'ea', 'q', 'th', 'ph', 'mn', 'eau', 'kw', 'rh', 'ph', 'th', 'eon', 'ion', 'yon', 'oir', ]
+    danger_letters = ['x', 'y', 'ae', 'ea', 'q', 'th', 'ph', 'mn', 'eau', 'kw', 'rh', 'ph', 'th', 'eon', 'ion', 'yon', 'oir', 'air']
     danger_letters_max_length = 6
     danger_starters = ['ch']
 

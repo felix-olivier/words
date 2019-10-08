@@ -2,3 +2,4 @@ flask==1.0.*
 gunicorn
 requests
 bs4
+flask-cors
