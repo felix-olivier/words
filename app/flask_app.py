@@ -41,7 +41,7 @@ def get_article_text(id):
 Get a predefined list of difficult words
 '''
 def get_difficult_words(): # todo: combine with get_difficult_words_alternative
-    local = True
+    local = False
     if (local):
         file = open('app/data/words.csv', 'r')
     else:
@@ -63,7 +63,7 @@ def get_difficult_words(): # todo: combine with get_difficult_words_alternative
 #         print(data)
 
 def update_pre_defintions():
-    local = True
+    local = False
 
 '''
 Retrieve definitions of a word by scraping van dale
