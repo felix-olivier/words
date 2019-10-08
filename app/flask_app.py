@@ -149,7 +149,7 @@ def update_pre_defintions():
         path = 'app/data/definitions.json'
     else:
         path = '/data/definitions.json'
-    with open(path, 'w') as outfile:
+    with open(path, 'w+') as outfile:
         json.dump(pre_definitions, outfile)
 
 #### ENDPOINT ITEMS/ID
