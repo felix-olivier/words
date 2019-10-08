@@ -7,7 +7,7 @@ import json
 app = Flask(__name__)
 
 ### Read files
-local = False # set to false on CHP/Docker
+local = True # set to false on CHP/Docker
 if (local):
     definitions_file = 'app/data/definitions.json'
     definitions_file2 = 'app/data/definitions.csv'
@@ -60,13 +60,20 @@ def get_article_text(id):
 '''
 Get a predefined list of difficult words
 '''
-def get_difficult_words():
+def get_difficult_words(article):
     if (local):
-        file = open('app/data/words.csv', 'r')
+        file = open('app/data/zeldzame-woorden.csv', 'r')
     else:
-        file = open('data/words.csv', 'r')
-    difficult_words = file.read().split(',')
+        file = open('data/zeldzame-woorden.csv', 'r')
+    pre_difficult_words = file.read().split('\n')
     file.close()
+
+    difficult_words = []
+    for word in article.split():
+        word = cleanup_word(word)
+        if (word in pre_difficult_words):
+            difficult_words.append(word)
+            
     return difficult_words
 
 def update_pre_defintions(word, definitions):
@@ -181,7 +188,7 @@ def get_difficults_words(id):
     article_text = get_article_text(id)
 
     difficult_words = (get_difficult_words_alternative(article_text)) # this is based upon textual analysis
-    difficult_words.update(get_difficult_words()) # this is based upon a pre-defined list
+    difficult_words.update(get_difficult_words(article_text)) # this is based upon a pre-defined list
 
     words_to_explain = []
     for word in difficult_words:
