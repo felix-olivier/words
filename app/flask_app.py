@@ -176,7 +176,7 @@ def get_difficults_words(id):
                 print('WARNING: No definition found for ' + word)
 
     # update pre_definitions file
-    # update_pre_defintions()
+    update_pre_defintions()
 
     return jsonify({'words': words_to_explain})
 
