@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import json
-import nltk.data
+# import nltk.data
 import pyphen
 from flask_cors import CORS
 
@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)
 
 ### Read files
-local = False # set to false on CHP/Docker
+local = True # set to false on CHP/Docker
 if (local):
     definitions_file = 'app/data/definitions.json'
     definitions_file2 = 'app/data/definitions.csv'
@@ -45,7 +45,7 @@ with open(definitions_file2, 'r') as csv_file:
             line = csv_file.readline()
 
 
-sentence_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+# sentence_tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
 pyphen.language_fallback('nl_NL_variant1')
 hyphenator = pyphen.Pyphen(lang='nl_NL')
 
@@ -206,7 +206,7 @@ def rate_text_difficulty(article_text: str) -> dict:
     :param article_text: Volledige tekst van het artikel, als een enkele string
     :return: object met ratings per evaluatiemethode
     """
-    sentence_lengths = [len(sentence.split()) for sentence in sentence_tokenizer.tokenize(article_text.strip())]
+    sentence_lengths = 1 # [len(sentence.split()) for sentence in sentence_tokenizer.tokenize(article_text.strip())]
     syllable_lengths = [len(hyphenator.inserted(token).split('-')) for token in article_text.split() if len(token) > 0]
 
     avg_sentence_length = sum(sentence_lengths) / len(sentence_lengths)
@@ -242,7 +242,7 @@ def get_difficults_words(id):
 
     return jsonify({
         'words': words_to_explain,
-        'rating': rate_text_difficulty(article_text)
+        'rating': 1 # rate_text_difficulty(article_text)
     })
 
 #### ENDPOINT STUB
