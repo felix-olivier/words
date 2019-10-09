@@ -14,7 +14,7 @@ WORKDIR /usr/src/app
 
 # --- Python Setup ---
 ADD . .
-RUN pip install -r app/requirements.pip
+RUN pip install -r app/requirements.pip && python3 -m nltk.downloader punkt
 
 # --- Nginx Setup ---
 COPY config/nginx/default.conf /etc/nginx/conf.d/
