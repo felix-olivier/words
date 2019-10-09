@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)
 
 ### Read files
-local = True # set to false on CHP/Docker
+local = False # set to false on CHP/Docker
 if (local):
     definitions_file = 'app/data/definitions.json'
     definitions_file2 = 'app/data/definitions.csv'
